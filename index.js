@@ -8,7 +8,7 @@ var path = require('path');
 var app = express();
 
 // Import the Anagrammatix game file - we are treating this as another server-side node module.
-var agx = require('./agxgame');
+var agx = require('./game');
 
 // Create a simple Express application
 

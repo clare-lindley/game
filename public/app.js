@@ -27,6 +27,9 @@ jQuery(function($){
             IO.socket.on('newGameCreated', IO.onNewGameCreated );
             IO.socket.on('playerJoinedRoom', IO.playerJoinedRoom );
             IO.socket.on('beginNewGame', IO.beginNewGame );
+
+            IO.socket.on('gameStarted', IO.onGameStarted );
+
             IO.socket.on('newWordData', IO.onNewWordData);
             IO.socket.on('hostCheckAnswer', IO.hostCheckAnswer);
             IO.socket.on('gameOver', IO.gameOver);
@@ -36,10 +39,10 @@ jQuery(function($){
         /**
          * The client is successfully connected!
          */
-        onConnected : function() {
+        onConnected : function(data) {
             // Cache a copy of the client's socket.IO session ID on the App
             App.mySocketId = IO.socket.socket.sessionid;
-            // console.log(data.message);
+            console.log(data.message);
         },
 
         /**
@@ -108,6 +111,15 @@ jQuery(function($){
          */
         error : function(data) {
             alert(data.message);
+        },
+
+         // Server says the countdown has finished and the Game has started
+        onGameStarted : function(){
+          console.log('CLARE LISTENING FOR onGameStarted');
+
+          // update the HOST with the YT player template
+          // update the PLAYER with the search template
+          App[App.myRole].displayVideoScreen();
         }
 
     };
@@ -167,6 +179,10 @@ jQuery(function($){
             App.$templateNewGame = $('#create-game-template').html();
             App.$templateJoinGame = $('#join-game-template').html();
             App.$hostGame = $('#host-game-template').html();
+
+            App.$hostVideoPlayer = $('#host-videoplayer-template').html();
+            App.$playerSearch = $('#player-search-template').html();
+
         },
 
         /**
@@ -181,6 +197,10 @@ jQuery(function($){
             App.$doc.on('click', '#btnStart',App.Player.onPlayerStartClick);
             App.$doc.on('click', '.btnAnswer',App.Player.onPlayerAnswerClick);
             App.$doc.on('click', '#btnPlayerRestart', App.Player.onPlayerRestart);
+
+            App.$doc.on('click', '#btnVideoSearch', App.Player.onVideoSearchClick);
+
+
         },
 
         /* *************************************
@@ -246,6 +266,10 @@ jQuery(function($){
                 // console.log("Game started with ID: " + App.gameId + ' by host: ' + App.mySocketId);
             },
 
+            displayVideoScreen: function() {
+                App.$gameArea.html(App.$hostVideoPlayer);
+              },
+
             /**
              * Show the Host screen containing the game URL and unique game ID
              */
@@ -301,7 +325,7 @@ jQuery(function($){
 
                 // Begin the on-screen countdown timer
                 var $secondsLeft = $('#hostWord');
-                App.countDown( $secondsLeft, 5, function(){
+                App.countDown( $secondsLeft, 1, function(){
                     IO.socket.emit('hostCountdownFinished', App.gameId);
                 });
 
@@ -428,6 +452,24 @@ jQuery(function($){
              * The player's name entered on the 'Join' screen.
              */
             myName: '',
+
+            displayVideoScreen: function() {
+              App.$gameArea.html(App.$playerSearch);
+            },
+
+            onVideoSearchClick: function() {
+
+              console.log('CLICKED');
+
+              alert(App.$doc('input[name="video"]').val());
+
+              return false;
+
+              // get the data from the form and pass it to game.doVideoSearch()
+
+              // display the results in a HTML list
+
+            },
 
             /**
              * Click handler for the 'JOIN' button
