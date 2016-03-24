@@ -35,6 +35,8 @@ exports.initGame = function(sio, socket){
   gameSocket.on('hostCountdownFinished', hostStartGame);
   gameSocket.on('hostNextRound', hostNextRound);
 
+  gameSocket.on('currentPlayerVideoSearch', doVideoSearch);
+
   // Player Events
   gameSocket.on('playerJoinGame', playerJoinGame);
   gameSocket.on('playerAnswer', playerAnswer);
@@ -162,5 +164,20 @@ function playerRestart(data) {
 }
 
 
+/* *****************************
+ *                           *
+ *     YOUTUBE FUNCTIONS     *
+ *                           *
+ ***************************** */
 
+function doVideoSearch(data){
+
+console.log(data);
+
+  // make YT API call
+  // pass the response back with the event 'videoSearchResultsReady’ for the clients to handle
+
+  io.sockets.in(data.gameId).emit('videoSearchResultsReady', data);
+
+}
 

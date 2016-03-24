@@ -29,6 +29,7 @@ jQuery(function($){
             IO.socket.on('beginNewGame', IO.beginNewGame );
 
             IO.socket.on('gameStarted', IO.onGameStarted );
+            IO.socket.on('videoSearchResultsReady', IO.videoSearchResultsReady);
 
             IO.socket.on('newWordData', IO.onNewWordData);
             IO.socket.on('hostCheckAnswer', IO.hostCheckAnswer);
@@ -115,11 +116,17 @@ jQuery(function($){
 
          // Server says the countdown has finished and the Game has started
         onGameStarted : function(){
-          console.log('CLARE LISTENING FOR onGameStarted');
+
 
           // update the HOST with the YT player template
           // update the PLAYER with the search template
           App[App.myRole].displayVideoScreen();
+        },
+
+        videoSearchResultsReady : function(data){
+
+          // update the player client with the results - use hyperscript
+          console.log('We have the search results for the search: ' + data.searchTerm);
         }
 
     };
@@ -171,6 +178,7 @@ jQuery(function($){
          * Create references to on-screen elements used throughout the game.
          */
         cacheElements: function () {
+
             App.$doc = $(document);
 
             // Templates
@@ -458,16 +466,13 @@ jQuery(function($){
             },
 
             onVideoSearchClick: function() {
+              // collect data to send to the server
+              var data = {
+                searchTerm : $('input[name="video"]').val(),
+                gameId: App.gameId
+              };
 
-              console.log('CLICKED');
-
-              alert(App.$doc('input[name="video"]').val());
-
-              return false;
-
-              // get the data from the form and pass it to game.doVideoSearch()
-
-              // display the results in a HTML list
+              IO.socket.emit('currentPlayerVideoSearch', data);
 
             },
 
