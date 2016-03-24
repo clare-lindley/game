@@ -174,7 +174,7 @@ function doVideoSearch(data){
 
 console.log(data);
 
-  // make YT API call
+  // make YT API call - use node http package: https://nodejs.org/api/http.html#http_http_request_options_callback
   // pass the response back with the event 'videoSearchResultsReady’ for the clients to handle
 
   io.sockets.in(data.gameId).emit('videoSearchResultsReady', data);
