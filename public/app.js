@@ -126,7 +126,7 @@ jQuery(function($){
         videoSearchResultsReady : function(data){
 
           // update the player client with the results - use hyperscript
-          console.log('We have the search results for the search: ' + data.searchTerm);
+          console.log(data.results);
         }
 
     };

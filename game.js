@@ -14,7 +14,7 @@
 
 */
 
-
+var https = require('https');
 var io;
 var gameSocket;
 
@@ -172,12 +172,37 @@ function playerRestart(data) {
 
 function doVideoSearch(data){
 
-console.log(data);
-
-  // make YT API call - use node http package: https://nodejs.org/api/http.html#http_http_request_options_callback
+  // make YT API call
   // pass the response back with the event 'videoSearchResultsReady’ for the clients to handle
 
-  io.sockets.in(data.gameId).emit('videoSearchResultsReady', data);
+  var options = {
+    host: 'www.googleapis.com',
+    path: '/youtube/v3/search?part=snippet&q=' + data.searchTerm + '&type=video&maxResults=25&key=AIzaSyB7Q9OG5EbQDxsPcP3voVbmMUuABU9ORKw'
+  };
+
+
+  var req = https.get(options, function(res) {
+    console.log('STATUS: ' + res.statusCode);
+    console.log('HEADERS: ' + JSON.stringify(res.headers));
+
+    // Buffer the body entirely for processing as a whole.
+    var bodyChunks = [];
+    res.on('data', function(chunk) {
+      // You can process streamed parts here...
+      bodyChunks.push(chunk);
+    }).on('end', function() {
+      var body = Buffer.concat(bodyChunks);
+      // ...and/or process the entire body here.
+      data.results = JSON.parse(body)
+      io.sockets.in(data.gameId).emit('videoSearchResultsReady', data);
+    })
+  });
+
+
+  req.on('error', function(e) {
+    console.log('ERROR: ' + e.message);
+  });
+
 
 }
 
