@@ -2,8 +2,7 @@
  GameStarted = my test event - OK
  Player client emits ‘currentPlayerVideoSearch’ and sends search query (button click) - OK
  Server handles and emits ‘videoSearchResultsReady’ and returns results - OK
-
- Player client handles and displays results - working on now
+ Player client handles and displays results - working on now - OK
 
  Player chooses video - click handler on player emits ‘currentPlayerVideoSelect’ and sends video id back to Server
  Server handles and emits ‘videoReadyToPlay’ and returns video id
