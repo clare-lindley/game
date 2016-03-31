@@ -184,7 +184,6 @@ jQuery(function($){
 
             App.$hostVideoPlayer = $('#host-videoplayer-template').html();
             App.$playerSearch = $('#player-search-template').html();
-            App.$playerSearchResults = $('#player-search-result-template').html();
 
         },
 
