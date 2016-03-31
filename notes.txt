@@ -1,0 +1,110 @@
+Key things:
+
+1. code grouped in Object Literal Namespace pattern
+2. IO to handle events emitted from Server, App to do the actual functionality
+3. Host/Player functions separated by having
+App.Host.keepScore()
+App.Player.keepScore()
+
+Most of the Game logic - keeping score, counting round number etc seems to be handled by the client. It's in keeping
+with the Thick client paradigm. The only thing the server is doing in terns of game logic is shuffling the words, this could
+be moved to the client and the server then only returns a list of words.
+
+SERVER SIDE:
+
+
+1. Entry point for the app - index.js
+2. Include required modules and set up the server and socket.io
+3. Initialise a new game instance: Set up the Host and Player events and event handlers. Very very event based
+We emit events using: this.emit('newGameCreated'); and we listen for events using: socket.on('newGameCreated')
+Happy with the setup and server side functions so far!
+
+CLIENT CODE:
+HOST - load the game for the first time:
+1. index.html - served by default, includes all necessary scripts inc socket.io client library.
+HTML for each screen is all in the same file and managed using the type="text/template" attribute. Leave for
+now and substitute with Angular later.
+2. app.js - all the client-side logic - starts off with self-calling function: jQuery(function($){
+3. All variables and functions contained within 2 objects, IO and App. These are kicked off with IO.init() and App.init()
+At this point am happy with copying this but after going through the Eloquent JS book this may become clearer/may be able
+to grok better or think of other ways of doing it.
+** to lookup: Self-calling functions and Namespacing **
+4. IO.init() - connect the socket.io client to the socket.io server and bind the events emitted from the socket.io
+server to their client-side handlers
+5. App.init() - set up the templates, load the title screen, set up responsive text sizing, set up some Host and Player
+button click handlers
+
+1. HOST CLIENT Clicks Create new Game button
+Client emits the event 'hostCreateNewGame', server reacts to this event and executes hostCreateNewGame().
+server creates a new game, emits the event 'newGameCreated' and JOINS the new socket.io room.
+
+
+Room ID:  I *THINK* by just calling join() with a unique string identifier, that creates the room? Yeah that seems to be it.
+A note on socket.io rooms - as well as the room you put them in, each socket automatically joins a room identified
+by its socket id by default. So you can broadcast messages to individual sockets as well as the entire room.
+
+2. HOST CLIENT detects the newGameCreated event from the server
+Initialises the game and Host screen updated to show Game ID. HOST ROLE ASSIGNED TO THIS CONNECTION
+
+3. PLAYER 1 CLIENT CONNECTS AND CLICKS JOIN
+Client connects via socket.io and displays the Join Game template
+Client handles the 'onPlayerStartClick' button click and emits the event 'playerJoinGame' - sends player
+data (GameId, playername) to server. PLAYER ROLE ASSIGNED TO THIS CONNECTION
+
+Server handles 'playerJoinGame' client event: playerJoinGame has a reference to the connected client's socket object.
+Looks up the room that matches the game id sent from the client and adds the player's socket to the room.
+Notifies all connections in the room that this player has joined - emits the event 'playerJoinedRoom' and sends the player data
+back to the client with an extra setting of the player's socket id.
+Client handles the 'playerJoinedRoom' event and updates the Host and Player's waiting screens -
+
+Host.updateWaitingScreen() - update to show that player1 joined the game, save the player's data to the host players array
+and increment number of players. If 2 players have joined, emit event 'hostRoomFull'
+
+Player.updateWaitingScreen() - this is for player 1 only, when 2 players have joined we start the game. Update Player 1 view to
+display message that they have joined the game and wait for it to start.
+
+4. PLAYER 2 CLIENT CONNECTS AND CLICKS JOIN
+Host Client Checks to see if there are 2 players and emits 'hostRoomFull' event.
+Server handles the 'hostRoomFull' event - emits the 'beginNewGame' event to all socket connections in the room
+
+5. GAME STARTED. Countdown begins!
+Client handles the 'beginNewGame' event:
+Host.gameCountdown() - prepare the screen with the next lot of HTML, Start the countdown, display players names and starting scores on screen
+Player.gameCountdown() - update the players client with the 'Get ready!' message
+
+6. GAME STARTED, Countdown over!
+Host client emits event 'hostCountdownFinished' and the Host starts the game!
+Server gets the words and notifies all players: io.sockets.in(data.gameId).emit('newWordData', data);
+Client handles the 'onNewWordData' event - updates the current round and the view for the host and players
+
+7. A PLAYER TAPS A WORD
+Click handler: 'onPlayerAnswerClick' - client emits the event 'playerAnswer' with the answer json data:
+IO.socket.emit('playerAnswer',data); The Server handles the player event 'playerAnswer' and responds by notifying the host:
+io.sockets.in(data.gameId).emit('hostCheckAnswer', data);
+
+8. THE HOST VERIFIES THE ANSWER
+Host client handles the 'hostCheckAnswer' event and does logic to check the answer, updates scores and rounds and notify
+the server to start the next round: emit event 'hostNextRound'
+Server handles event 'hostNextRound' - depending on the round number we either go back to 'sendWord' or we end the game.
+
+9. THE GAME ENDS WHEN THE WORDPOOL IS EXHAUSTED
+If the the currentRound > 10 then the server emits the 'gameOver' event.
+Host:endGame() - work out who the winner is, display the winner's name on the Host screen, or It's a Tie! and reset game data.
+Player:endGame() - display Game Over and show a button to start again.
+
+10. THE PLAYERS START AGAIN
+Any Player clicks the Start Again button - that player's view updates with 'Waiting on host to start new game.'
+client emits the 'playerRestart' event.
+Server handles the 'playerRestart' event - tells all the connections in the room that this player has joined:
+io.sockets.in(data.gameId).emit('playerJoinedRoom',data);
+client handles the 'playerJoinedRoom' event: Host.updateWaitingScreen() - Host screen updates with the Game Id and 'player Ben joined the room'
+
+******** DOES Player.updateWaitingScreen() happen here as well? ********
+YES - but it doesn't need to.
+
+Next Player clicks the Start Again button - we go back to the countdown again - host detects that there are now
+2 players and the game starts again.
+
+
+
+
