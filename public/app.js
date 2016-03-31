@@ -27,6 +27,10 @@ jQuery(function($){
             IO.socket.on('newGameCreated', IO.onNewGameCreated );
             IO.socket.on('playerJoinedRoom', IO.playerJoinedRoom );
             IO.socket.on('beginNewGame', IO.beginNewGame );
+
+            IO.socket.on('gameStarted', IO.onGameStarted );
+            IO.socket.on('videoSearchResultsReady', IO.videoSearchResultsReady);
+
             IO.socket.on('newWordData', IO.onNewWordData);
             IO.socket.on('hostCheckAnswer', IO.hostCheckAnswer);
             IO.socket.on('gameOver', IO.gameOver);
@@ -36,10 +40,10 @@ jQuery(function($){
         /**
          * The client is successfully connected!
          */
-        onConnected : function() {
+        onConnected : function(data) {
             // Cache a copy of the client's socket.IO session ID on the App
             App.mySocketId = IO.socket.socket.sessionid;
-            // console.log(data.message);
+            console.log(data.message);
         },
 
         /**
@@ -108,6 +112,21 @@ jQuery(function($){
          */
         error : function(data) {
             alert(data.message);
+        },
+
+         // Server says the countdown has finished and the Game has started
+        onGameStarted : function(){
+
+
+          // update the HOST with the YT player template
+          // update the PLAYER with the search template
+          App[App.myRole].displayVideoScreen();
+        },
+
+        videoSearchResultsReady : function(data){
+
+          // update the player client with the results - use hyperscript
+          console.log(data.results);
         }
 
     };
@@ -159,6 +178,7 @@ jQuery(function($){
          * Create references to on-screen elements used throughout the game.
          */
         cacheElements: function () {
+
             App.$doc = $(document);
 
             // Templates
@@ -167,6 +187,10 @@ jQuery(function($){
             App.$templateNewGame = $('#create-game-template').html();
             App.$templateJoinGame = $('#join-game-template').html();
             App.$hostGame = $('#host-game-template').html();
+
+            App.$hostVideoPlayer = $('#host-videoplayer-template').html();
+            App.$playerSearch = $('#player-search-template').html();
+
         },
 
         /**
@@ -181,6 +205,10 @@ jQuery(function($){
             App.$doc.on('click', '#btnStart',App.Player.onPlayerStartClick);
             App.$doc.on('click', '.btnAnswer',App.Player.onPlayerAnswerClick);
             App.$doc.on('click', '#btnPlayerRestart', App.Player.onPlayerRestart);
+
+            App.$doc.on('click', '#btnVideoSearch', App.Player.onVideoSearchClick);
+
+
         },
 
         /* *************************************
@@ -246,6 +274,10 @@ jQuery(function($){
                 // console.log("Game started with ID: " + App.gameId + ' by host: ' + App.mySocketId);
             },
 
+            displayVideoScreen: function() {
+                App.$gameArea.html(App.$hostVideoPlayer);
+              },
+
             /**
              * Show the Host screen containing the game URL and unique game ID
              */
@@ -301,7 +333,7 @@ jQuery(function($){
 
                 // Begin the on-screen countdown timer
                 var $secondsLeft = $('#hostWord');
-                App.countDown( $secondsLeft, 5, function(){
+                App.countDown( $secondsLeft, 1, function(){
                     IO.socket.emit('hostCountdownFinished', App.gameId);
                 });
 
@@ -428,6 +460,21 @@ jQuery(function($){
              * The player's name entered on the 'Join' screen.
              */
             myName: '',
+
+            displayVideoScreen: function() {
+              App.$gameArea.html(App.$playerSearch);
+            },
+
+            onVideoSearchClick: function() {
+              // collect data to send to the server
+              var data = {
+                searchTerm : $('input[name="video"]').val(),
+                gameId: App.gameId
+              };
+
+              IO.socket.emit('currentPlayerVideoSearch', data);
+
+            },
 
             /**
              * Click handler for the 'JOIN' button
