@@ -121,6 +121,7 @@ jQuery(function($){
 
         videoSearchResultsReady : function(data){
           App['Player'].displayVideoSearchResults(data);
+          //
         }
 
     };
@@ -201,6 +202,7 @@ jQuery(function($){
             App.$doc.on('click', '#btnPlayerRestart', App.Player.onPlayerRestart);
 
             App.$doc.on('click', '#btnVideoSearch', App.Player.onVideoSearchClick);
+            App.$doc.on('click', '#btnVideoSearch', App.Player.onCurrentPlayerVideoSelect);
 
 
         },
@@ -461,16 +463,13 @@ jQuery(function($){
 
             displayVideoSearchResults: function(data) {
 
-
               // process the search results and add them to the DOM
               var resultsList = '<ul>';
               for(var i=0; i<data.results.items.length; i++) {
 
                 var item = data.results.items[i];
 
-                console.log(item);
-
-                resultsList += '<li>' + item.snippet.title + '</li>';
+                resultsList += '<li><img src="' + item.snippet.thumbnails.default.url + '"/>' + item.snippet.title + '</li>';
 
               }
               resultsList += '</ul>';
