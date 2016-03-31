@@ -116,20 +116,11 @@ jQuery(function($){
 
          // Server says the countdown has finished and the Game has started
         onGameStarted : function(){
-
-
-          // update the HOST with the YT player template
-          // update the PLAYER with the search template
           App[App.myRole].displayVideoScreen();
         },
 
         videoSearchResultsReady : function(data){
-
-          // include the results tpl
-          // loop through data.results json and pass to DOM
-
-          // update the player client with the results - use hyperscript
-          console.log(data.results);
+          App['Player'].displayVideoSearchResults(data);
         }
 
     };
@@ -193,6 +184,7 @@ jQuery(function($){
 
             App.$hostVideoPlayer = $('#host-videoplayer-template').html();
             App.$playerSearch = $('#player-search-template').html();
+            App.$playerSearchResults = $('#player-search-result-template').html();
 
         },
 
@@ -466,6 +458,26 @@ jQuery(function($){
 
             displayVideoScreen: function() {
               App.$gameArea.html(App.$playerSearch);
+            },
+
+            displayVideoSearchResults: function(data) {
+
+
+              // process the search results and add them to the DOM
+              var resultsList = '<ul>';
+              for(var i=0; i<data.results.items.length; i++) {
+
+                var item = data.results.items[i];
+
+                console.log(item);
+
+                resultsList += '<li>' + item.snippet.title + '</li>';
+
+              }
+              resultsList += '</ul>';
+
+              App.$gameArea.html(resultsList);
+
             },
 
             onVideoSearchClick: function() {
