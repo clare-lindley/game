@@ -1,15 +1,15 @@
 /**
  GameStarted = my test event - OK
+ Player client emits ‘currentPlayerVideoSearch’ and sends search query (button click) - OK
+ Server handles and emits ‘videoSearchResultsReady’ and returns results - OK
 
- Player client emits ‘currentPlayerVideoSearch’ and sends search query (button click)
- Server handles and emits ‘videoSearchResultsReady’ and returns results
- Player client handles and displays results
+ Player client handles and displays results - working on now
+
  Player chooses video - click handler on player emits ‘currentPlayerVideoSelect’ and sends video id back to Server
  Server handles and emits ‘videoReadyToPlay’ and returns video id
  Host client handles and plays the video in the player.
 
  So set up - we need a player and a host client, we need player templates and a host template
-
  Setup events - what are these?
 
 */
@@ -172,9 +172,6 @@ function playerRestart(data) {
 
 function doVideoSearch(data){
 
-  // make YT API call
-  // pass the response back with the event 'videoSearchResultsReady’ for the clients to handle
-
   var options = {
     host: 'www.googleapis.com',
     path: '/youtube/v3/search?part=snippet&q=' + data.searchTerm + '&type=video&maxResults=25&key=AIzaSyB7Q9OG5EbQDxsPcP3voVbmMUuABU9ORKw'
@@ -182,8 +179,8 @@ function doVideoSearch(data){
 
 
   var req = https.get(options, function(res) {
-    console.log('STATUS: ' + res.statusCode);
-    console.log('HEADERS: ' + JSON.stringify(res.headers));
+    //console.log('STATUS: ' + res.statusCode);
+    //console.log('HEADERS: ' + JSON.stringify(res.headers));
 
     // Buffer the body entirely for processing as a whole.
     var bodyChunks = [];

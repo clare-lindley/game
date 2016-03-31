@@ -125,6 +125,9 @@ jQuery(function($){
 
         videoSearchResultsReady : function(data){
 
+          // include the results tpl
+          // loop through data.results json and pass to DOM
+
           // update the player client with the results - use hyperscript
           console.log(data.results);
         }
