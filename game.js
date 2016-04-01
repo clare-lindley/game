@@ -3,19 +3,26 @@
  Player client emits ‘currentPlayerVideoSearch’ and sends search query (button click) - OK
  Server handles and emits ‘videoSearchResultsReady’ and returns results - OK
  Player client handles and displays results - working on now - OK
+ Player chooses video - click handler on player emits ‘onvideoSearchResultClick’ and sends video id back to Server - OK
 
- Player chooses video - click handler on player emits ‘currentPlayerVideoSelect’ and sends video id back to Server
  Server handles and emits ‘videoReadyToPlay’ and returns video id
  Host client handles and plays the video in the player.
 
  So set up - we need a player and a host client, we need player templates and a host template
  Setup events - what are these?
 
+ @todo Keep the video player on the Host - only broadcast results to the players
+
+ @todo Make the button bigger on the player screen
+
+ @todo Use REAL YT API library: https://developers.google.com/youtube/v3/docs/search/list#examples
+
 */
 
 var https = require('https');
 var io;
 var gameSocket;
+
 
 /**
  * This function is called by index.js to initialize a new game instance.
@@ -34,7 +41,9 @@ exports.initGame = function(sio, socket){
   gameSocket.on('hostCountdownFinished', hostStartGame);
   gameSocket.on('hostNextRound', hostNextRound);
 
+  // Video-related Events
   gameSocket.on('currentPlayerVideoSearch', doVideoSearch);
+  gameSocket.on('currentPlayerVideoSelected', currentPlayerVideoSelected);
 
   // Player Events
   gameSocket.on('playerJoinGame', playerJoinGame);
@@ -165,7 +174,7 @@ function playerRestart(data) {
 
 /* *****************************
  *                           *
- *     YOUTUBE FUNCTIONS     *
+ *     VIDEO-RELATED FUNCTIONS     *
  *                           *
  ***************************** */
 
@@ -190,6 +199,8 @@ function doVideoSearch(data){
       var body = Buffer.concat(bodyChunks);
       // ...and/or process the entire body here.
       data.results = JSON.parse(body)
+
+      // here we only want to send data to the players, not ALL the clients. Oh ya!
       io.sockets.in(data.gameId).emit('videoSearchResultsReady', data);
     })
   });
@@ -199,6 +210,10 @@ function doVideoSearch(data){
     console.log('ERROR: ' + e.message);
   });
 
+}
 
+function currentPlayerVideoSelected(data){
+  
+  console.log('Server passing video id ' + data.videoId + 'back to host client for display');
 }
 

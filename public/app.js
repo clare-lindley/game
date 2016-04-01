@@ -202,7 +202,7 @@ jQuery(function($){
             App.$doc.on('click', '#btnPlayerRestart', App.Player.onPlayerRestart);
 
             App.$doc.on('click', '#btnVideoSearch', App.Player.onVideoSearchClick);
-            App.$doc.on('click', '#btnVideoSearch', App.Player.onCurrentPlayerVideoSelect);
+            App.$doc.on('click', '.videoSearchResult', App.Player.onvideoSearchResultClick);
 
 
         },
@@ -469,7 +469,7 @@ jQuery(function($){
 
                 var item = data.results.items[i];
 
-                resultsList += '<li><img src="' + item.snippet.thumbnails.default.url + '"/>' + item.snippet.title + '</li>';
+                resultsList += '<li id="' + item.id.videoId + '" class="videoSearchResult"><img src="' + item.snippet.thumbnails.default.url + '"/>' + item.snippet.title + '</li>';
 
               }
               resultsList += '</ul>';
@@ -485,7 +485,25 @@ jQuery(function($){
                 gameId: App.gameId
               };
 
+              // send search term back to server to use to call the YT API
               IO.socket.emit('currentPlayerVideoSearch', data);
+
+            },
+
+            onvideoSearchResultClick: function(){
+
+
+
+              var result = this;
+              var data = {
+                videoId: result.id
+              }
+
+              console.log(data);
+
+              // send video id back to Server
+              IO.socket.emit('currentPlayerVideoSelected', data);
+
 
             },
 
