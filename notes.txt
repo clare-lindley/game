@@ -106,5 +106,10 @@ Next Player clicks the Start Again button - we go back to the countdown again - 
 2 players and the game starts again.
 
 
+HOW DO WE KNOW WHICH IS THE HOST AND WHICH ARE THE PLAYERS?
+Whatever client clicks 'Create New Game' gets set as the Host
+Then we use App.Role to determine whether the client is Player or Host
+
+
 
 
