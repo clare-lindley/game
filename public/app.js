@@ -30,6 +30,7 @@ jQuery(function($){
 
             IO.socket.on('gameStarted', IO.onGameStarted );
             IO.socket.on('videoSearchResultsReady', IO.videoSearchResultsReady);
+            IO.socket.on('videoReadyToPlay', IO.videoReadyToPlay);
 
             IO.socket.on('newWordData', IO.onNewWordData);
             IO.socket.on('hostCheckAnswer', IO.hostCheckAnswer);
@@ -120,8 +121,22 @@ jQuery(function($){
         },
 
         videoSearchResultsReady : function(data){
-          App['Player'].displayVideoSearchResults(data);
-          //
+          if(App.myRole === 'Player') {
+            App['Player'].displayVideoSearchResults(data);
+          }
+        },
+
+        /**
+         *
+         * @param data {videoId: the YouTube id of the video selected by the player}
+         */
+        videoReadyToPlay : function(data){
+
+          // A video is ready to play. If we're the host, then load it!
+          if(App.myRole === 'Host') {
+            App.Host.playSelectedVideo(data);
+          }
+
         }
 
     };
@@ -437,6 +452,14 @@ jQuery(function($){
             restartGame : function() {
                 App.$gameArea.html(App.$templateNewGame);
                 $('#spanNewGameCode').text(App.gameId);
+            },
+
+            /**
+             *
+             * @param data {videoId: the YouTube id of the video selected by the player}
+             */
+            playSelectedVideo : function(data){
+              console.log('Host about to play video', data.videoId);
             }
         },
 
@@ -492,14 +515,11 @@ jQuery(function($){
 
             onvideoSearchResultClick: function(){
 
-
-
               var result = this;
               var data = {
-                videoId: result.id
+                videoId: result.id,
+                gameId: App.gameId
               }
-
-              console.log(data);
 
               // send video id back to Server
               IO.socket.emit('currentPlayerVideoSelected', data);

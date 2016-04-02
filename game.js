@@ -4,18 +4,19 @@
  Server handles and emits ‘videoSearchResultsReady’ and returns results - OK
  Player client handles and displays results - working on now - OK
  Player chooses video - click handler on player emits ‘onvideoSearchResultClick’ and sends video id back to Server - OK
+ Server handles and emits ‘videoReadyToPlay’ and returns video id - OK
 
- Server handles and emits ‘videoReadyToPlay’ and returns video id
- Host client handles and plays the video in the player.
+ Host client handles and plays the video in the player - do after the research tasks below
 
- So set up - we need a player and a host client, we need player templates and a host template
- Setup events - what are these?
-
- @todo Keep the video player on the Host - only broadcast results to the players
-
- @todo Make the button bigger on the player screen
-
+ RESEARCH TASKS
  @todo Use REAL YT API library: https://developers.google.com/youtube/v3/docs/search/list#examples
+
+ @todo Use REAL YT player API: player.loadVideoById() is what we need here to load the video
+
+ @todo Find out how to emit events to a specific client ONLY. Currently we're broadcasting to all
+ and then the client IO object filters the response based on the client's Role.
+ It would be nice if we could just send messages to a specific client id. Gotta crack that one methinks
+ io.sockets.in(data.gameId).emit seems to work EVEN WHEN data.gameId is undefined!!!????
 
 */
 
@@ -59,6 +60,8 @@ exports.initGame = function(sio, socket){
 
 /**
  * The 'START' button was clicked and 'hostCreateNewGame' event occurred.
+ *
+ * Note we can use THIS in the initial functions cause there's only one socket?
  */
 function hostCreateNewGame() {
   // Create a unique Socket.IO Room
@@ -200,7 +203,7 @@ function doVideoSearch(data){
       // ...and/or process the entire body here.
       data.results = JSON.parse(body)
 
-      // here we only want to send data to the players, not ALL the clients. Oh ya!
+      // here we nned to emit the event and the data, but ONLY the player clients listen to ot
       io.sockets.in(data.gameId).emit('videoSearchResultsReady', data);
     })
   });
@@ -212,8 +215,16 @@ function doVideoSearch(data){
 
 }
 
+/**
+ *
+ * @param data {videoId: the YouTube id of the video selected by the player, gameId: id of the socket.io room}
+ */
 function currentPlayerVideoSelected(data){
-  
-  console.log('Server passing video id ' + data.videoId + 'back to host client for display');
+
+  // io.sockets.in(roomId) - emit a message to all client sockets in this room
+  // socket.emit() - socket client is emitting a message for the server to listen to
+
+  io.sockets.in(data.gameId).emit('videoReadyToPlay', {videoId: data.videoId});
+
 }
 
