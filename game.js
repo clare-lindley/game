@@ -11,6 +11,8 @@
  RESEARCH TASKS
  @todo Use REAL YT API library: https://developers.google.com/youtube/v3/docs/search/list#examples
 
+ @todo Put YT init in the App.init() section not at the bottom of app.js
+
  @todo Use REAL YT player API: player.loadVideoById() is what we need here to load the video
 
  @todo Find out how to emit events to a specific client ONLY. Currently we're broadcasting to all
@@ -34,7 +36,7 @@ var gameSocket;
 exports.initGame = function(sio, socket){
   io = sio;
   gameSocket = socket;
-  gameSocket.emit('connected', { message: "You are connected!" });
+  //gameSocket.emit('connected', { message: "You are connected!" });
 
   // Host Events
   gameSocket.on('hostCreateNewGame', hostCreateNewGame);
