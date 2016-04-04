@@ -103,8 +103,11 @@
     </script>
 
     <script id="host-videoplayer-template" type="text/template">
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/Py69lCL1hIc" frameborder="0" allowfullscreen></iframe>
+        <div id="player"></div>
     </script>
+
+
+
 
     <!-- JavaScript Libraries -->
 
@@ -114,18 +117,22 @@
     <!-- TextFit resizes text to fill a container.
         It's used so the titles and game words fit properly on any size screen.
         https://github.com/STRML/textFit   -->
-    <script src="libs/textFit.min.js"></script>
+    <script src="./libs/textFit.min.js"></script>
 
     <!-- FastClick is used to eliminate the 300ms delay when clicking items on a mobile device
         https://github.com/ftlabs/fastclick -->
-    <script src="libs/fastclick.js"></script>
+<!--    <script src="libs/fastclick.js"></script>-->
 
     <!-- If Socket.IO is used with Express, then the /socket.io/ path will
         serve the proper Socket.IO javascript files used by the browser -->
     <script src="/socket.io/socket.io.js"></script>
 
+    <!-- yt-player-init.js is the YouTube iframe player setup  -->
+    <script src="yt-player-init.js"></script>
+
     <!-- app.js is where all the client-side Anagrammatix game logic -->
     <script src="app.js"></script>
+
 
 </body>
 </html>

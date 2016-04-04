@@ -287,6 +287,13 @@ jQuery(function($){
 
             displayVideoScreen: function() {
                 App.$gameArea.html(App.$hostVideoPlayer);
+
+                // load the YT iframe API js asynchronously - could probably just use async attribute actually
+                // @see https://developers.google.com/youtube/iframe_api_reference#Getting_Started
+                var tag = document.createElement('script');
+                tag.src = "https://www.youtube.com/iframe_api";
+                var firstScriptTag = document.getElementsByTagName('script')[0];
+                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
               },
 
             /**
@@ -459,7 +466,16 @@ jQuery(function($){
              * @param data {videoId: the YouTube id of the video selected by the player}
              */
             playSelectedVideo : function(data){
-              console.log('Host about to play video', data.videoId);
+
+              // player refers to a global variable used by the YT iframe player API
+              if (typeof player !== 'undefined' && playerReady){
+                  player.loadVideoById({'videoId': data.videoId,
+                    'startSeconds': 5,
+                    'endSeconds': 60,
+                    'suggestedQuality': 'large'}
+                  );
+              }
+
             }
         },
 
