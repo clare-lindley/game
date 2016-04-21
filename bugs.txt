@@ -1,0 +1,3 @@
+If Player 1 clicks START before player2 joins, they end up playing themselves.
+
+Player window needs to have focus first before the search result click event fires.
