@@ -1,6 +1,9 @@
 // Import the Express module
 var express = require('express');
 
+// Logger
+var morgan = require('morgan');
+
 // Import the 'path' module (packaged with Node.js)
 var path = require('path');
 
@@ -12,8 +15,8 @@ var agx = require('./game');
 
 // Create a simple Express application
 
- // Turn down the logging activity
-app.use(express.logger('dev'));
+ // Configure Logging - we're just using logging all requests at the moment we can come back to this later
+//app.use(morgan('combined'));
 
 // Serve static html, js, css, and image files from the 'public' directory
 app.use(express.static(path.join(__dirname,'public')));
@@ -25,8 +28,6 @@ var server = require('http').createServer(app).listen(process.env.PORT || 8080);
 // Create a Socket.IO server and attach it to the http server
 var io = require('socket.io').listen(server);
 
-// Reduce the logging output of Socket.IO
-io.set('log level',1);
 
 // Listen for Socket.IO Connections. Once connected, start the game logic.
 // here the socket param represents the unique socket connection between server and the connected browser.

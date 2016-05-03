@@ -43,8 +43,8 @@ jQuery(function($){
          */
         onConnected : function(data) {
             // Cache a copy of the client's socket.IO session ID on the App
-            App.mySocketId = IO.socket.socket.sessionid;
-            console.log(data.message);
+            App.mySocketId = IO.socket.id;
+            console.log(data.message, App.mySocketId);
         },
 
         /**
@@ -616,7 +616,15 @@ jQuery(function($){
              */
             updateWaitingScreen : function(data) {
 
-                if(IO.socket.socket.sessionid === data.mySocketId){
+              // when to use the '/#' prefix and when not
+
+              console.log(IO.socket.id); // is the client socket connection  e.g. 'I46DUOphuZKJDlkqAAAH'
+              console.log(IO.socket.nsp); // is the client socket namespace e.g. '/'
+              console.log(data.mySocketId); // is the socket id sent back from the server e.g. '/#I46DUOphuZKJDlkqAAAH'
+
+              var clientSockId = IO.socket.nsp + '#' + IO.socket.id;
+
+                if(clientSockId === data.mySocketId){
                     App.myRole = 'Player';
                     App.gameId = data.gameId;
 
